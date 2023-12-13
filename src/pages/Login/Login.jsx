@@ -8,8 +8,35 @@ export default function Login(){
     });
     const navigate = useNavigate()
     function handleLogin(e){
-        e.preventDefault()
-        navigate("/")
+        e.preventDefault();
+
+        const requestBody = {
+            username: formData.username,
+            password: formData.password
+        }
+        fetch('http://127.0.0.1:5500/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        })
+            .then(response => {
+                if (response.ok){
+                    return response.json();
+                }else {
+                    console.log('Login failed');
+                }
+            })
+            .then(data =>{
+                sessionStorage.setItem('name', data.name);
+                sessionStorage.setItem('token', data.accessToken);
+                navigate("/");
+            })
+            .catch(error => {
+                console.log(error);
+            });
+
     }
     const submitAvailable = formData.username&&formData.password;
     function updateFormData(e){
