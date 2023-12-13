@@ -4,7 +4,16 @@ import './app.css'
 
 import Mainlayout from "./layouts/Main";
 import Homepage from "./pages/Home/Homepage";
+import Agenda from "./pages/Agenda/Agenda";
 import Login from "./pages/Login/Login.jsx";
+
+import Jadwal from "./pages/Jadwal/Jadwal";
+import Inventory from "./pages/Inventory/Inventory.jsx";
+import JadwalRuangan from "./pages/JadwalRuangan/JadwalRuangan";
+import Pertemuan from "./pages/DaftarPertemuan/DaftarPertemuan";
+import Document from "./pages/Dokumen/Dokumen";
+import Anggota from "./pages/DataAnggota/Anggota"
+
 
 function ScrollToTop() {
   const { pathname } = useLocation();
