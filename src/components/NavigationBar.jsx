@@ -3,18 +3,21 @@ import { Link, NavLink } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
+import { useAuth} from "../context/AuthContext.jsx";
 
 
 import dummyprofile from "../assets/dummy-profile.jpg";
 import logoasetext from "../assets/LogoASE-Text.png";
 
 function Sidebar({open, onChange}) {
+    const { logout } = useAuth();
     const isLogin = () => {
         const token = sessionStorage.getItem('token');
         return !!token;
     };
     const navigate = useNavigate();
     const handleLogOut = () => {
+        logout();
         sessionStorage.clear();
         navigate("/");
     };

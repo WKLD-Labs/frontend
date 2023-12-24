@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { AuthProvider } from "./context/AuthContext.jsx";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import './app.css'
 
@@ -33,6 +34,7 @@ export function App() {
   return (
     <BrowserRouter>
       <ScrollToTop/>
+      <AuthProvider>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Mainlayout/>}>
@@ -46,6 +48,7 @@ export function App() {
           <Route path="*" element={<h1 class="w-full text-center text-3xl my-auto">404</h1>} />
         </Route>
       </Routes>
+    </AuthProvider>
     </BrowserRouter>
   )
 }
