@@ -1,15 +1,26 @@
 import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext.jsx";
 import logo from '/src/assets/LogoASE-Text.png'
 
 export default function Login(){
+    const { login } = useAuth();
     const [formData, setFormData] = useState({
         username: "", password: ""
     });
     const navigate = useNavigate()
     function handleLogin(e){
-        e.preventDefault()
-        navigate("/")
+        e.preventDefault();
+
+        login(formData.username, formData.password)
+            .then(data => {
+                sessionStorage.setItem('name', data.name);
+                sessionStorage.setItem('token', data.accessToken);
+                navigate("/");
+            })
+            .catch(error => {
+                console.log('Login failed:', error);
+            })
     }
     const submitAvailable = formData.username&&formData.password;
     function updateFormData(e){

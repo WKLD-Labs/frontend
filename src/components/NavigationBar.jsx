@@ -2,11 +2,25 @@ import { MdMenu } from "react-icons/md";
 import { Link, NavLink } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useLocation } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import { useAuth} from "../context/AuthContext.jsx";
+
 
 import dummyprofile from "../assets/dummy-profile.jpg";
 import logoasetext from "../assets/LogoASE-Text.png";
 
 function Sidebar({open, onChange}) {
+    const { logout } = useAuth();
+    const isLogin = () => {
+        const token = sessionStorage.getItem('token');
+        return !!token;
+    };
+    const navigate = useNavigate();
+    const handleLogOut = () => {
+        logout();
+        sessionStorage.clear();
+        navigate("/");
+    };
     return (
         <>
             <div class={`fixed top-0 left-0 w-64 h-full z-20 bg-aseorange transform transition-transform duration-300 ease-in-out ${open ? 'translate-x-0' : '-translate-x-full'}`}>
@@ -15,14 +29,24 @@ function Sidebar({open, onChange}) {
                         <img class="w-5/6 object-cover" src={logoasetext} />
                     </div>
                     <nav class="flex flex-col gap-4 p-4 text-white text-lg font-medium">
-                        <NavLink className="navlink" to="/">Home</NavLink>
-                        <NavLink className="navlink" to="/documents">Dokumen</NavLink>
-                        <NavLink className="navlink" to="/schedule">Jadwal</NavLink>
-                        <NavLink className="navlink" to="/agenda">Agenda</NavLink>
-                        <NavLink className="navlink" to="/roomschedule">Jadwal Ruangan</NavLink>
-                        <NavLink className="navlink" to="/memberdata">Data Anggota</NavLink>
-                        <NavLink className="navlink" to="/inventory">Inventaris</NavLink>
-                        <NavLink className="navlink" to="/meetingschedule">Daftar Pertemuan</NavLink>
+                        {isLogin() ? (
+                            <>
+                                <NavLink className="navlink" to="/">Home</NavLink>
+                                <NavLink className="navlink" to="/documents">Dokumen</NavLink>
+                                <NavLink className="navlink" to="/schedule">Jadwal</NavLink>
+                                <NavLink className="navlink" to="/agenda">Agenda</NavLink>
+                                <NavLink className="navlink" to="/roomschedule">Jadwal Ruangan</NavLink>
+                                <NavLink className="navlink" to="/memberdata">Data Anggota</NavLink>
+                                <NavLink className="navlink" to="/inventory">Inventaris</NavLink>
+                                <NavLink className="navlink" to="/meetingschedule">Daftar Pertemuan</NavLink>
+                                <NavLink className="navlink" to="/" onClick={handleLogOut}>Logout</NavLink>
+                            </>
+                        ) : (
+                            <>
+                                <NavLink className="navlink" to="/">Home</NavLink>
+                                <NavLink className="navlink" to="/login">Login</NavLink>
+                            </>
+                        )}
                     </nav>
                 </div>
             </div>
@@ -36,6 +60,7 @@ function Sidebar({open, onChange}) {
 export default function NavigationBar() {
   const [openSidebar, setOpenSidebar] = useState(false);
   const location = useLocation();
+  const name = sessionStorage.getItem('name');
   useEffect(() => {
     setOpenSidebar(false)
   }, [location])
@@ -50,7 +75,7 @@ export default function NavigationBar() {
             
             
             <Link to="/" class="flex flex-row gap-4 items-center">
-                <span>AdamRafif</span>
+                <span>{sessionStorage.getItem('name')?name:"User"}</span>
                 <img class="w-10 rounded-full aspect-square" src={dummyprofile}/>
             </Link>
         </div>

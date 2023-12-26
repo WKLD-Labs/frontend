@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import {AuthProvider, useAuth} from "./context/AuthContext.jsx";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import './app.css'
 
 import Mainlayout from "./layouts/Main";
@@ -25,24 +26,30 @@ function ScrollToTop() {
   return null;
 }
 
+const ProtectedRoute = ({ component }) => {
+  const { isLogin } = useAuth();
+  return isLogin() ? component : <Navigate to="/login" />;
+};
+
 export function App() {
   return (
     <BrowserRouter>
       <ScrollToTop/>
+      <AuthProvider>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Mainlayout/>}>
           <Route index element={<Homepage />} />
-          <Route path="agenda"element={<Agenda />} />
-          <Route path="inventory" element={<Inventory />} />
-          <Route path="roomschedule" element={<JadwalRuangan />} />
-          <Route path="schedule" element={<Jadwal />} />
-          <Route path="meetingschedule" element={<Pertemuan />} />
-          <Route path="memberdata" element={<Anggota />} />
-          <Route path="documents" element={<Document />} />
+          <Route path="/agenda" element={<ProtectedRoute component={<Agenda />} />} />
+          <Route path="/inventory" element={<ProtectedRoute component={<Inventory />} />} />
+          <Route path="/roomschedule" element={<ProtectedRoute component={<JadwalRuangan />} />} />
+          <Route path="/schedule" element={<ProtectedRoute component={<Jadwal />} />} />
+          <Route path="/memberdata" element={<ProtectedRoute component={<Anggota />} />} />
+          <Route path="/documents" element={<ProtectedRoute component={<Document />} />} />
           <Route path="*" element={<h1 class="w-full text-center text-3xl my-auto">404</h1>} />
         </Route>
       </Routes>
+    </AuthProvider>
     </BrowserRouter>
   )
 }
