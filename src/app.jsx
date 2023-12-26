@@ -27,7 +27,7 @@ function ScrollToTop() {
 }
 
 export function App() {
-  const isLogin = () => {
+  const isLogin = async () => {
     const token = sessionStorage.getItem('token');
     return !!token;
   };
