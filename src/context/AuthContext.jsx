@@ -9,6 +9,7 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [accessToken, setAccessToken] = useState(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     const login = async (username, password) => {
         try {
@@ -23,6 +24,7 @@ export const AuthProvider = ({ children }) => {
                 const userData = await response.json();
                 setUser(userData);
                 setAccessToken(userData.accessToken);
+                setIsLoggedIn(true);
                 return userData;
             } else if (response.status === 401) {
                 setUser(null);
@@ -41,10 +43,17 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
         setUser(null);
         setAccessToken(null);
+        setIsLoggedIn(false);
     };
 
+    const isLogin = () => {
+        console.log(isLoggedIn);
+        return isLoggedIn;
+    };
+
+
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, login, logout, isLogin }}>
             {children}
         </AuthContext.Provider>
     );

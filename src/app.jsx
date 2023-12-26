@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { AuthProvider } from "./context/AuthContext.jsx";
+import {AuthProvider, useAuth} from "./context/AuthContext.jsx";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import './app.css'
 
@@ -26,11 +26,12 @@ function ScrollToTop() {
   return null;
 }
 
+const ProtectedRoute = ({ component }) => {
+  const { isLogin } = useAuth();
+  return isLogin() ? component : <Navigate to="/login" />;
+};
+
 export function App() {
-  const isLogin = async () => {
-    const token = sessionStorage.getItem('token');
-    return !!token;
-  };
   return (
     <BrowserRouter>
       <ScrollToTop/>
@@ -39,12 +40,12 @@ export function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Mainlayout/>}>
           <Route index element={<Homepage />} />
-          <Route path="/agenda" element={isLogin() ? <Agenda /> : <Navigate to="/login" />} />
-          <Route path="/inventory" element={isLogin() ? <Inventory /> : <Navigate to="/login" />} />
-          <Route path="/roomschedule" element={isLogin() ? <JadwalRuangan /> : <Navigate to="/login" />} />
-          <Route path="/schedule" element={isLogin() ? <Jadwal /> : <Navigate to="/login" />} />
-          <Route path="/memberdata" element={isLogin() ? <Anggota /> : <Navigate to="/login" />} />
-          <Route path="/documents" element={isLogin() ? <Document /> : <Navigate to="/login" />} />
+          <Route path="/agenda" element={<ProtectedRoute component={<Agenda />} />} />
+          <Route path="/inventory" element={<ProtectedRoute component={<Inventory />} />} />
+          <Route path="/roomschedule" element={<ProtectedRoute component={<JadwalRuangan />} />} />
+          <Route path="/schedule" element={<ProtectedRoute component={<Jadwal />} />} />
+          <Route path="/memberdata" element={<ProtectedRoute component={<Anggota />} />} />
+          <Route path="/documents" element={<ProtectedRoute component={<Document />} />} />
           <Route path="*" element={<h1 class="w-full text-center text-3xl my-auto">404</h1>} />
         </Route>
       </Routes>
