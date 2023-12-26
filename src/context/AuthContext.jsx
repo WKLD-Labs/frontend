@@ -47,8 +47,8 @@ export const AuthProvider = ({ children }) => {
     };
 
     const isLogin = () => {
-        console.log(isLoggedIn);
-        return isLoggedIn;
+        const token = sessionStorage.getItem('token');
+        return isLoggedIn || !!token;
     };
 
 
