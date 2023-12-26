@@ -2,6 +2,7 @@ import { PopUpDialog, PopUpActions, PopUpContents, PopUpHeader } from "../../com
 import {MdDeleteForever, MdMoreVert} from "react-icons/md"
 import {useState, useEffect} from "react";
 import { Table, TableHeader, TableBody, TableRow, TableCol } from '../../components/Table';
+import {data} from "autoprefixer";
 function NewInventoryDialog({showDialog, setShowDialog}){
     return (
         <PopUpDialog open={showDialog} onChange={setShowDialog}>
@@ -45,37 +46,62 @@ function NewInventoryDialog({showDialog, setShowDialog}){
 }
 
 export default function Inventory(){
+    const token = sessionStorage.getItem('token');
     const [selectedData, setSelectedData] = useState(null);
     const [showDialog, setShowDialog] = useState(false);
-    const sampleData = [
-        {
-            id: "E01",
-            nama: "PC",
-            unit: "4 Unit",
-            date: "23 January 2023",
-            deskripsi: "Ini PC bang hehe",
-            gambar: "https://source.unsplash.com/640x360?funny-animals"
-        },
-        {
-            id: "E02",
-            nama: "PS5",
-            unit: "1 Unit",
-            date: "23 January 2023",
-            deskripsi: "Ini PS bang hehe",
-            gambar: "https://source.unsplash.com/640x360?funny-animals"
-        },
-        {
-            id: "E03",
-            nama: "Microwave",
-            unit: "1 Unit",
-            date: "23 January 2023",
-            deskripsi: "Ini buat masak bang hehe",
-            gambar: "https://source.unsplash.com/640x360?funny-animals"
-        }
-    ]
-    useEffect(() => {
-        setSelectedData(sampleData[0])
+    const [inventoryData, setInventoryData] = useState([]);
+    const [formData, setFormData] = useState({
+        id: '',
+        name: '',
+        unit: null,
+        date: '',
+        picture: '',
+        description: '',
+    });
+
+    function handleNameChange(e) {
+        setFormData({...formData, name: e.target.value});
+    }
+    function handleDescChange(e) {
+        setFormData({...formData, description: e.target.value});
+    }
+    function handleUnitChange(e) {
+        setFormData({...formData, unit: e.target.value});
+    }
+    useEffect(()=>{
+        fetch('http://localhost:5500/api/inventory', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                setInventoryData(data);
+            })
+            .catch(err => {
+                console.error(err);
+            });
     }, []);
+    useEffect(() => {
+        setSelectedData(inventoryData[0])
+    }, []);
+    useEffect(() => {
+        if (selectedData) {
+            setFormData({
+                id: selectedData.id || '',
+                name: selectedData.name || '',
+                unit: selectedData.unit || '',
+                date: selectedData.date || '',
+                picture: selectedData.picture || ``,
+                description: selectedData.description || '',
+            });
+        }
+    }, [selectedData]);
     return (
         <div className="flex flex-col p-20 gap-4 overflow-x-auto">
             <h1 className="text-5xl max-lg:text-center">Inventaris</h1>
@@ -90,10 +116,10 @@ export default function Inventory(){
                             <TableCol></TableCol>
                         </TableHeader>
                         <TableBody>
-                            {sampleData.map((e, i)=>(
-                                <TableRow className="hover:bg-opacity-20" onClick={()=>setSelectedData(sampleData[i])}>
+                            {inventoryData.map((e, i)=>(
+                                <TableRow className="hover:bg-opacity-20" onClick={()=>setSelectedData(inventoryData[i])}>
                                     <TableCol>{e.id}</TableCol>
-                                    <TableCol>{e.nama}</TableCol>
+                                    <TableCol>{e.name}</TableCol>
                                     <TableCol>{e.unit}</TableCol>
                                     <TableCol>{e.date}</TableCol>
                                     <TableCol>
@@ -108,7 +134,7 @@ export default function Inventory(){
                     </Table>
                 </div>
                 <div className="flex flex-col justify-center items-center bg-asegrey bg-opacity-10 p-4 gap-2">
-                    <img src={selectedData?.gambar} alt="" className="w-56 object-cover rounded-xl"/>
+                    <img src={formData?.picture} alt="" className="w-56 object-cover rounded-xl"/>
                     <form action="">
                         <table className="border-separate border-spacing-x-2 border-spacing-y-2">
                             <tr>
@@ -120,19 +146,19 @@ export default function Inventory(){
                             <tr>
                                 <td>Nama</td>
                                 <td>
-                                    <input type="text" className="aseinput w-48" value={selectedData?.nama}/>
+                                    <input type="text" className="aseinput w-48" value={formData?.name} onChange={handleNameChange}/>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Deskripsi</td>
                                 <td>
-                                    <textarea name="" id="" className="aseinput w-48" value={selectedData?.deskripsi}></textarea>
+                                    <textarea name="" id="" className="aseinput w-48" value={formData?.description} onChange={handleDescChange}></textarea>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Unit</td>
                                 <td>
-                                    <input type="text" className="aseinput w-48" value={selectedData?.unit}/>
+                                    <input type="text" className="aseinput w-48" value={formData?.unit} onChange={handleUnitChange}/>
                                 </td>
                             </tr>
                         </table>
