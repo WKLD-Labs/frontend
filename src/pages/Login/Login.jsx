@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext.jsx";
 import logo from '/src/assets/LogoASE-Text.png'
 
 export default function Login(){
+    const { login } = useAuth();
     const [formData, setFormData] = useState({
         username: "", password: ""
     });
@@ -10,33 +12,15 @@ export default function Login(){
     function handleLogin(e){
         e.preventDefault();
 
-        const requestBody = {
-            username: formData.username,
-            password: formData.password
-        }
-        fetch('http://127.0.0.1:5500/api/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestBody)
-        })
-            .then(response => {
-                if (response.ok){
-                    return response.json();
-                }else {
-                    console.log('Login failed');
-                }
-            })
-            .then(data =>{
+        login(formData.username, formData.password)
+            .then(data => {
                 sessionStorage.setItem('name', data.name);
                 sessionStorage.setItem('token', data.accessToken);
                 navigate("/");
             })
             .catch(error => {
-                console.log(error);
-            });
-
+                console.log('Login failed:', error);
+            })
     }
     const submitAvailable = formData.username&&formData.password;
     function updateFormData(e){
