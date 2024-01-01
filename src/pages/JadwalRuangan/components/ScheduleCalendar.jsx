@@ -56,10 +56,14 @@ export default function ScheduleCalendar({currentDate, onDateUpdate, calendarDat
               "occupied": "bg-red-400",
               "selected": "bg-blue-400"
             }[occupiedDate.state]
-            if (viewCurrentMonth && i - firstDay === currentDate.getDate()) {
-              bgColor = "bg-green-400"
-            }
+
             if (occupiedDate.start.setHours(0, 0, 0, 0) == thisDate) {
+              console.log(occupiedDate.start.setHours(0, 0, 0, 0), occupiedDate.end.setHours(0, 0, 0, 0))
+            }
+            
+            if (occupiedDate.start.setHours(0, 0, 0, 0) == occupiedDate.end.setHours(0, 0, 0, 0) && occupiedDate.start.setHours(0, 0, 0, 0) == thisDate) {
+              dateStyle = `rounded-full ${bgColor}`
+            } else if (occupiedDate.start.setHours(0, 0, 0, 0) == thisDate) {
               dateStyle = `rounded-l-full ${bgColor}`
             } else if (occupiedDate.end.setHours(0, 0, 0, 0) == thisDate) {
               dateStyle = `rounded-r-full ${bgColor}`
