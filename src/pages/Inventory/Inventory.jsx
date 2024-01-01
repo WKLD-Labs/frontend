@@ -3,7 +3,29 @@ import {MdDeleteForever, MdMoreVert} from "react-icons/md"
 import {useState, useEffect} from "react";
 import { Table, TableHeader, TableBody, TableRow, TableCol } from '../../components/Table';
 import {data} from "autoprefixer";
-function NewInventoryDialog({showDialog, setShowDialog}){
+function NewInventoryDialog({showDialog, setShowDialog, onSubmit}){
+    const [formData, setFormData] = useState({
+        name: '',
+        unit: null,
+        date: '',
+        description: '',
+    });
+
+    function handleSave() {
+        onSubmit(formData);
+    }
+    function handleNameChange(e) {
+        setFormData({ ...formData, name: e.target.value });
+    }
+
+    function handleDescChange(e) {
+        setFormData({ ...formData, description: e.target.value });
+    }
+
+    function handleUnitChange(e) {
+        setFormData({ ...formData, unit: e.target.value });
+    }
+
     return (
         <PopUpDialog open={showDialog} onChange={setShowDialog}>
             <PopUpHeader text="New Item"></PopUpHeader>
@@ -14,23 +36,19 @@ function NewInventoryDialog({showDialog, setShowDialog}){
                             <tbody>
                             <tr>
                                 <td className="w-32">Item Name</td>
-                                <td><input className="aseinput w-full" type="text" /></td>
+                                <td><input className="aseinput w-full" type="text" value={formData.name} onChange={handleNameChange} /></td>
                             </tr>
                             <tr>
                                 <td className="w-32">Unit</td>
-                                <td><input className="aseinput w-full" type="number" /></td>
+                                <td><input className="aseinput w-full" type="number" value={formData.unit} onChange={handleUnitChange} /></td>
                             </tr>
                             <tr>
                                 <td className="w-32">Date</td>
-                                <td><input className="aseinput w-full" type="date" /></td>
-                            </tr>
-                            <tr>
-                                <td className="w-32">Picture</td>
-                                <td><input className="aseinput w-full" type="file" /></td>
+                                <td><input className="aseinput w-full" type="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} /></td>
                             </tr>
                             <tr>
                                 <td className="w-32">Description</td>
-                                <td><input className="aseinput w-full" type="textarea" /></td>
+                                <td><input className="aseinput w-full" type="textarea" value={formData.description} onChange={handleDescChange} /></td>
                             </tr>
                             </tbody>
                         </table>
@@ -38,8 +56,8 @@ function NewInventoryDialog({showDialog, setShowDialog}){
                 </div>
             </PopUpContents>
             <PopUpActions>
-                <button className="py-1 px-4 rounded-full bg-aseorange text-white" onClick={() => {alert("Pura Puranya di save");setShowDialog(false)}}>Save</button>
-                <button className="py-1 px-4 rounded-full bg-aseorange text-white" onClick={()=>setShowDialog(false)}>Close</button>
+                <button className="py-1 px-4 rounded-full bg-aseorange text-white" onClick={handleSave}>Save</button>
+                <button className="py-1 px-4 rounded-full bg-aseorange text-white" onClick={() => setShowDialog(false)}>Close</button>
             </PopUpActions>
         </PopUpDialog>
     )
@@ -55,10 +73,101 @@ export default function Inventory(){
         name: '',
         unit: null,
         date: '',
-        picture: '',
         description: '',
     });
 
+    function handleNewInventory(newInventoryData) {
+        fetch('http://localhost:5500/api/inventory', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify(newInventoryData)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to add new inventory');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('New inventory added:', data);
+                setShowDialog(false);
+                fetchInventoryData();
+            })
+            .catch(error => {
+                console.error('Error adding new inventory:', error);
+            });
+    }
+    function handleDelete(id) {
+        fetch(`http://localhost:5500/api/inventory/${id}`, {
+            method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to delete inventory item');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Inventory item deleted:', data);
+                fetchInventoryData();
+            })
+            .catch(error => {
+                console.error('Error deleting inventory item:', error);
+            });
+    }
+    function handleUpdate() {
+        fetch(`http://localhost:5500/api/inventory/${selectedData.id}`, {
+            method: 'PUT', // Use PUT method for updates
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify(formData) // Send the updated data
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to update inventory item');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Inventory item updated:', data);
+                fetchInventoryData(); // Fetch updated inventory data
+            })
+            .catch(error => {
+                console.error('Error updating inventory item:', error);
+            });
+    }
+    function fetchInventoryData() {
+        fetch('http://localhost:5500/api/inventory', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                setInventoryData(data);
+            })
+            .catch(err => {
+                console.error(err);
+            });
+    }
+    function handleFormSubmit(event) {
+        event.preventDefault(); // Prevent default form submission behavior
+
+        handleUpdate(); // Call the update function when the form is submitted
+    }
     function handleNameChange(e) {
         setFormData({...formData, name: e.target.value});
     }
@@ -97,7 +206,6 @@ export default function Inventory(){
                 name: selectedData.name || '',
                 unit: selectedData.unit || '',
                 date: selectedData.date || '',
-                picture: selectedData.picture || ``,
                 description: selectedData.description || '',
             });
         }
@@ -124,8 +232,7 @@ export default function Inventory(){
                                     <TableCol>{e.date}</TableCol>
                                     <TableCol>
                                         <span className="ml-auto mr-8 w-fit flex flex-row gap-2">
-                                            <button onClick={(e)=>{alert("123");e.stopPropagation()}}><MdDeleteForever size="24px"/></button>
-                                            <button onClick={(e)=>{alert("123");e.stopPropagation()}}><MdMoreVert size="24px"/></button>
+                                            <button onClick={(event)=>{handleDelete(e.id);event.stopPropagation()}}><MdDeleteForever size="24px"/></button>
                                         </span>
                                     </TableCol>
                                 </TableRow>
@@ -134,8 +241,7 @@ export default function Inventory(){
                     </Table>
                 </div>
                 <div className="flex flex-col justify-center items-center bg-asegrey bg-opacity-10 p-4 gap-2">
-                    <img src={formData?.picture} alt="" className="w-56 object-cover rounded-xl"/>
-                    <form action="">
+                    <form onSubmit={handleFormSubmit}>
                         <table className="border-separate border-spacing-x-2 border-spacing-y-2">
                             <tr>
                                 <td>ID</td>
@@ -158,7 +264,7 @@ export default function Inventory(){
                             <tr>
                                 <td>Unit</td>
                                 <td>
-                                    <input type="text" className="aseinput w-48" value={formData?.unit} onChange={handleUnitChange}/>
+                                    <input type="number" className="aseinput w-48" value={formData?.unit} onChange={handleUnitChange}/>
                                 </td>
                             </tr>
                         </table>
@@ -167,7 +273,7 @@ export default function Inventory(){
                 </div>
             </div>
             <button onClick={()=>setShowDialog(true)} className="self-end rounded-xl w-48 h-8 bg-white text-black border border-asegrey">New Item</button>
-            <NewInventoryDialog showDialog={showDialog} setShowDialog={setShowDialog} />
+            <NewInventoryDialog showDialog={showDialog} setShowDialog={setShowDialog} onSubmit={handleNewInventory} />
         </div>
     )
 }
