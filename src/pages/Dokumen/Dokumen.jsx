@@ -2,7 +2,7 @@ import { BiFilterAlt } from 'react-icons/bi';
 import { Table, TableHeader, TableBody, TableRow, TableCol } from '../../components/Table';
 import { MdPersonOutline, MdMenuBook, MdOutlineDelete, MdMoreVert } from "react-icons/md";
 import { PopUpDialog, PopUpHeader, PopUpContents, PopUpActions } from "../../components/PopUpDialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function NewMeeting({showDialog, setShowDialog}) {
     return(
@@ -95,8 +95,49 @@ function BorrowDoc({showDialogBor, setShowDialogBor}) {
 }
 
 export default function Document () {
+    const bearertoken = sessionStorage.getItem('token');
+    const apiurl = "http://localhost:5500/api/document";
     const [showDialog, setOpen] = useState(false);
     const [showDialogBor, setOpenBor] = useState(false);
+    //===================================Backend===================================
+    const [docData, setDocData] = useState([]);
+
+    //Get Document
+    async function getDocument(id) {
+        id = null;
+        let response;
+        const headers = {   
+            'Authorization': 'Bearer ' + bearertoken
+        }
+        if (id) {
+            response = await fetch(apiurl + "/", {headers});
+        } else {
+            response = await fetch(apiurl, {headers});
+        }
+        let data = await response.json();
+        console.log(data);
+        return data.data;
+    }
+
+    //Read Document
+    async function readDocData() {
+        const data = await getDocument();
+        setDocData(data);
+    }
+
+    //Delete Document
+    async function deleteDoc(id) {
+        const headers = {
+            'Authorization': 'Bearer ' + bearertoken
+        }
+        await fetch(apiurl + "/" + id, {method: 'DELETE', headers});
+        readDocData()
+    }
+    useEffect(() => {
+        readDocData();
+    }, [])
+
+    //===================================Frontend===================================
     return(
         <div className="w-full relative p-10 mb-36">
             {/*Div for Search and filter*/}
@@ -131,20 +172,35 @@ export default function Document () {
                             </TableHeader>
 
                             <TableBody>
-                                
+                                {docData.map((data) => (
                                 <TableRow>
-                                    <TableCol><div className='w-96 break-words'>Sustainable Minds</div> <p className='text-gray-500 text-sm leading-tight'> Eli Blevis</p> </TableCol>
+                                    <TableCol>
+                                        <div className='w-96 break-words'>{data.title}</div> 
+                                        <p className='text-gray-500 text-sm leading-tight'> {data.writer}</p> </TableCol>
                                     <TableCol> 
                                     <div className='w-full'>
-                                        <div className="bg-gray-300 text-center p-1 w-36 m-auto"><p>Borrowed</p></div>
+                                        {data.status ? (
+                                            <div className="bg-green-300 text-center p-1 w-36 m-auto">
+                                            <p>Available</p>
+                                            </div>
+                                        ) : (
+                                            <div className="bg-gray-300 text-center p-1 w-36 m-auto">
+                                            <p>Borrowed</p>
+                                            </div>
+                                        )}
                                     </div>
                                     </TableCol>
                                     <TableCol>Rusdi</TableCol>
                                     
                                     <TableCol>
                                         <div className='flex flex-row items-center justify-center gap-3'>
-                                            <button className="ASE-button bg-gray-400 hover:bg-gray-400 cursor-not-allowed">Borrow</button>
-                                            <button onClick={()=>alert("DELETE ")}>
+                                            {data.status ? (
+                                                <button className="ASE-button" onClick={()=>setOpenBor(true)}>Borrow</button>
+                                            ) : (
+                                                <button className="ASE-button bg-gray-400 hover:bg-gray-400 cursor-not-allowed">Borrow</button>
+                                            )}
+                                            
+                                            <button onClick={()=>deleteDoc(data.id)}>
                                                 <MdOutlineDelete size={24} />
                                             </button>
                                             <button onClick={()=>alert("MORE ")}>
@@ -153,28 +209,8 @@ export default function Document () {
                                         </div>
                                     </TableCol>
                                 </TableRow>
+                                ))}
                                 
-                                <TableRow>
-                                    <TableCol> <div className='w-96 break-words'>Pemanfaatan Teknologi Game Untuk Pembelajaran</div> <p className='text-gray-500 text-sm leading-tight'> AZ Falani, PL Ekawati</p> </TableCol>
-                                    <TableCol> 
-                                    <div className='w-full'>
-                                        <div className="bg-green-300 text-center p-1 w-36 m-auto"><p>Available</p></div>
-                                    </div>
-                                    </TableCol>
-                                    <TableCol>-</TableCol>
-                                    
-                                    <TableCol>
-                                        <div className='flex flex-row items-center justify-center gap-3'>
-                                            <button className="ASE-button" onClick={()=>setOpenBor(true)}>Borrow</button>
-                                            <button onClick={()=>alert("DELETE ")}>
-                                                <MdOutlineDelete size={24} />
-                                            </button>
-                                            <button onClick={()=>alert("MORE ")}>
-                                                <MdMoreVert size={24} />
-                                            </button>
-                                        </div>
-                                    </TableCol>
-                                </TableRow>
                             </TableBody>
                         </Table>
                     </div>
