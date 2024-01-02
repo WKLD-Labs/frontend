@@ -3,35 +3,6 @@ import { MdOutlineDelete, MdMoreVert, MdLink } from "react-icons/md";
 import { PopUpDialog, PopUpHeader, PopUpContents, PopUpActions } from "../../components/PopUpDialog";
 import { Table, TableHeader, TableBody, TableRow, TableCol } from '../../components/Table';
 
-function ViewPertemuanData({showDialog, setShowDialog, data}){
-
-    const formatDate = (date) => {
-        const options = {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        };
-        return date.toLocaleDateString('id-ID', options);
-    }
-
-    return (
-        <PopUpDialog open={showDialog} onChange={setShowDialog}>
-                <PopUpHeader text={data.meetingname}/>
-                <PopUpContents> 
-                    <h1>{data.speaker}</h1>
-                    <h1>{formatDate(data.datetime)}</h1>
-                    <h1>{data.meetinglink}</h1>
-                    <h1>{data.description}</h1>
-                </PopUpContents>
-                <PopUpActions>
-                    <button className="py-1 px-4 rounded-full bg-aseorange text-white" onClick={() => setShowDialog(false)}>Close</button>
-                </PopUpActions>
-            </PopUpDialog>
-    )
-}
-
 function NewPertemuanDialog({showDialog, setShowDialog, onSubmit}) {
     const [formData, setFormData] = useState([{meetingname: "", speaker: "", datetime: null, meetinglink: "", description: ""}]);
  
@@ -84,6 +55,35 @@ function NewPertemuanDialog({showDialog, setShowDialog, onSubmit}) {
                 </PopUpActions>
             </PopUpDialog>
         </div>
+    )
+}
+
+function ViewPertemuanData({showDialog, setShowDialog, data}){
+
+    const formatDate = (date) => {
+        const options = {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        };
+        return date.toLocaleDateString('id-ID', options);
+    }
+
+    return (
+        <PopUpDialog open={showDialog} onChange={setShowDialog}>
+                <PopUpHeader text={data.meetingname}/>
+                <PopUpContents> 
+                    <h1>{data.speaker}</h1>
+                    <h1>{formatDate(data.datetime)}</h1>
+                    <h1>{data.meetinglink}</h1>
+                    <h1>{data.description}</h1>
+                </PopUpContents>
+                <PopUpActions>
+                    <button className="py-1 px-4 rounded-full bg-aseorange text-white" onClick={() => setShowDialog(false)}>Close</button>
+                </PopUpActions>
+            </PopUpDialog>
     )
 }
 
@@ -165,7 +165,7 @@ export default function Pertemuan(){
             <Table>
                 <TableHeader>
                     <TableCol>Title</TableCol>
-                    <TableCol>Item</TableCol>
+                    <TableCol>Pembicara</TableCol>
                     <TableCol>Date</TableCol>
                     <TableCol></TableCol>
                 </TableHeader>
@@ -182,7 +182,6 @@ export default function Pertemuan(){
                                 <TableCol><span className="ml-auto mr-8 w-fit flex flex-row gap-2">
                                     <MdLink size={24} onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(p.meetinglink); alert("Link tersalin")}}></MdLink>
                                     <MdOutlineDelete onClick={(e) => { e.stopPropagation(); handleDelete(p.id)}} size={24} />
-                                    <MdMoreVert size={24} />
                                 </span>
                                 </TableCol>
                             </TableRow>
