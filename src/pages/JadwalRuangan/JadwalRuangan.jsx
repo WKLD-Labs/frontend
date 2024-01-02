@@ -92,7 +92,7 @@ function NewActivityDialog({showDialog, setShowDialog, editData, onSubmit, marke
     }
     function closeDialog(e) {
         setShowDialog(e);
-        setFormData({id: null, name: "", start: "", end: ""})
+        setFormData({id: null, name: "", start_date: "", end_date: ""})
     }
     return (
         <PopUpDialog open={showDialog} onChange={closeDialog}>
@@ -235,7 +235,7 @@ export default function JadwalRuangan() {
                                     <button onClick={()=>handleDelete(data.id)}>
                                         <MdOutlineDelete size={24} />
                                     </button>
-                                    <button onClick={()=>{setSelectedData(data); setShowDialog(true)}}>
+                                    <button onClick={()=>{setSelectedData({...data}); setShowDialog(true)}}>
                                         <MdEdit size={24} />
                                     </button>   
                                     
