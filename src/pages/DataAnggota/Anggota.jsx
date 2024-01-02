@@ -24,6 +24,17 @@ function NewMemberDialog({ showDialog, setShowDialog, onSubmit }) {
         major: '',
         entryYear: null,
     });
+    useEffect(() => {
+        if (showDialog) {
+            setFormData({
+                nim: '',
+                name: '',
+                faculty: Object.keys(facultiesWithMajors)[0],
+                major: '',
+                entryYear: 0,
+            });
+        }
+    }, [showDialog]);
     function handleSave() {
         onSubmit(formData);
     }
@@ -54,18 +65,18 @@ function NewMemberDialog({ showDialog, setShowDialog, onSubmit }) {
                             <tbody>
                                 <tr>
                                     <td class="w-32">NIM</td>
-                                    <td><input class="aseinput w-full" type="text" onChange={handleNimChange} /></td>
+                                    <td><input class="aseinput w-full" type="text" onChange={handleNimChange} value={formData.nim} /></td>
                                 </tr>
                                 <tr>
                                     <td className="w-32">Name</td>
-                                    <td><input className="aseinput w-full" type="text" onChange={handleNameChange} /></td>
+                                    <td><input className="aseinput w-full" type="text" onChange={handleNameChange} value={formData.name}/></td>
                                 </tr>
                                 <tr>
                                     <td className="w-32">Faculty</td>
                                     <td><select
                                         className="aseinput w-full"
                                         onChange={(e) => {setSelectedFaculty(e.target.value);setFormData({ ...formData, faculty: e.target.value })}}
-                                        value={selectedFaculty}
+                                        value={formData.faculty}
                                     >
                                         {Object.keys(facultiesWithMajors).map((faculty) => (
                                             <option key={faculty} value={faculty}>
@@ -79,6 +90,7 @@ function NewMemberDialog({ showDialog, setShowDialog, onSubmit }) {
                                     <td><select
                                         className="aseinput w-full"
                                         onChange={handleMajorChange}
+                                        value={formData.major}
                                     >
                                         {selectedFacultyMajors.map((major) => (
                                             <option key={major} value={major}>
@@ -89,7 +101,7 @@ function NewMemberDialog({ showDialog, setShowDialog, onSubmit }) {
                                 </tr>
                                 <tr>
                                     <td className="w-32">Enty Year</td>
-                                    <td><input className="aseinput w-full" type="number" onChange={handleEntryChange} /></td>
+                                    <td><input className="aseinput w-full" type="number" onChange={handleEntryChange} value={formData.entryYear}/></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -134,26 +146,30 @@ export default function Anggota() {
             });
     }
     function handleDelete(id) {
-        fetch(`http://localhost:5500/api/member/${id}`, {
-            method: 'DELETE',
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to delete member');
+        const confirmDelete = window.confirm("Are you sure you want to delete this member?");
+        if (confirmDelete) {
+            fetch(`http://localhost:5500/api/member/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${token}`
                 }
-                return response.json();
             })
-            .then(data => {
-                console.log('Member deleted:', data);
-                fetchMemberData();
-            })
-            .catch(error => {
-                console.error('Error deleting Member:', error);
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to delete member');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Member deleted:', data);
+                    fetchMemberData();
+                })
+                .catch(error => {
+                    console.error('Error deleting Member:', error);
+                });
+        }
     }
+
     function fetchMemberData() {
         fetch('http://localhost:5500/api/member', {
             headers: {
