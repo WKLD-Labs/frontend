@@ -35,8 +35,39 @@ function PopUpPrompt({setCaller}) {
     )
 }
 
+function PopUpAlert({setCaller}) {
+    const [header, setHeader] = useState("");
+    const [contents, setContents] = useState("");
+    const [visible, setVisible] = useState(false);
+    const [promise, setPromise] = useState(null);
+
+    const caller = (header, contents) => {
+        setHeader(header);
+        setContents(contents);
+        setVisible(true);
+        return new Promise((resolve, reject) => {
+            setPromise({resolve, reject});
+        })
+    }
+
+    useEffect(() => setCaller(caller), []);
+
+    return (
+        <PopUpDialog open={visible} onChange={() => promise.resolve(false)}>
+            <PopUpHeader text={header}/>
+            <PopUpContents>
+                {contents}
+            </PopUpContents>
+            <PopUpActions>
+                <button className="py-1 px-4 rounded-full bg-aseorange text-white" onClick={() => {promise.resolve(); setVisible(false)}}>Ok</button>
+            </PopUpActions>
+        </PopUpDialog>
+    )
+}
+
 function NewActivityDialog({showDialog, setShowDialog, editData, onSubmit, markedDates}) {
     const [formData, setFormData] = useState({name: "", start_date: "", end_date: ""});
+    const [calendarDate, setCalendarDate] = useState(new Date());
     console.log(formData);
     if (editData) {
         markedDates = markedDates.filter((e) => e.start.getTime() != editData.start.getTime() && e.end.getTime() != editData.end.getTime());
@@ -64,7 +95,7 @@ function NewActivityDialog({showDialog, setShowDialog, editData, onSubmit, marke
         setFormData({id: null, name: "", start: "", end: ""})
     }
     return (
-        <PopUpDialog open={showDialog} onChange={setShowDialog}>
+        <PopUpDialog open={showDialog} onChange={closeDialog}>
             <PopUpHeader text={editData ? "Edit Schedule" : "New Schedule"}/>
             <PopUpContents>
                 <div className="flex flex-col md:flex-row gap-4 items-center overflow-x-hidden">
@@ -87,7 +118,7 @@ function NewActivityDialog({showDialog, setShowDialog, editData, onSubmit, marke
                         </table>
                     </form>
                     <div>
-                        <ScheduleCalendar readOnly={true} markedDates={markedDates} />
+                        <ScheduleCalendar calendarDate={calendarDate} onCalendarDateUpdate={setCalendarDate} readOnly={true} markedDates={markedDates} />
                     </div>
                 </div>
                 
@@ -108,6 +139,7 @@ export default function JadwalRuangan() {
     const [showDialog, setShowDialog] = useState(false);
     const [selectedData, setSelectedData] = useState(null);
     const aPrompt = useRef(null);
+    const aAlert = useRef(null);
     console.log(scheduleData)
     async function handleSubmit(data) {
         const headers = {
@@ -119,6 +151,11 @@ export default function JadwalRuangan() {
             response = await fetch(apiurl + "/" + data.id, {method: 'PUT', headers, body: new URLSearchParams(data)});
         } else {
             response = await fetch(apiurl, {method: 'POST', headers, body: new URLSearchParams(data)});
+        }
+        if (response.status >= 400) {
+            const res = await response.json();
+            aAlert.current("Error", res.error);
+            return;
         }
         updateScheduleData();
         return response;
@@ -232,6 +269,7 @@ export default function JadwalRuangan() {
           
         </div>
         <PopUpPrompt setCaller={v=>{aPrompt.current = v}} />
+        <PopUpAlert setCaller={v=>{aAlert.current = v}} />
       </div>
     );
 }
