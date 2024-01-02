@@ -10,7 +10,16 @@ function NewInventoryDialog({showDialog, setShowDialog, onSubmit}){
         date: '',
         description: '',
     });
-
+    useEffect(() => {
+        if (showDialog) {
+            setFormData({
+                name: '',
+                unit: 0,
+                date: '',
+                description: '',
+            });
+        }
+    }, [showDialog]);
     function handleSave() {
         onSubmit(formData);
     }
@@ -101,25 +110,28 @@ export default function Inventory(){
             });
     }
     function handleDelete(id) {
-        fetch(`http://localhost:5500/api/inventory/${id}`, {
-            method: 'DELETE',
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to delete inventory item');
+        const confirmDelete = window.confirm("Are you sure you want to delete this inventory?");
+        if (confirmDelete) {
+            fetch(`http://localhost:5500/api/inventory/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${token}`
                 }
-                return response.json();
             })
-            .then(data => {
-                console.log('Inventory item deleted:', data);
-                fetchInventoryData();
-            })
-            .catch(error => {
-                console.error('Error deleting inventory item:', error);
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to delete inventory');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Inventory deleted:', data);
+                    fetchInventoryData();
+                })
+                .catch(error => {
+                    console.error('Error deleting inventory:', error);
+                });
+        }
     }
     function handleUpdate() {
         fetch(`http://localhost:5500/api/inventory/${selectedData.id}`, {
@@ -177,6 +189,11 @@ export default function Inventory(){
     function handleUnitChange(e) {
         setFormData({...formData, unit: e.target.value});
     }
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const formattedDate = date.toISOString().split('T')[0];
+        return formattedDate;
+    }
     useEffect(()=>{
         fetch('http://localhost:5500/api/inventory', {
             headers: {
@@ -229,7 +246,7 @@ export default function Inventory(){
                                     <TableCol>{e.id}</TableCol>
                                     <TableCol>{e.name}</TableCol>
                                     <TableCol>{e.unit}</TableCol>
-                                    <TableCol>{e.date}</TableCol>
+                                    <TableCol>{formatDate(e.date)}</TableCol>
                                     <TableCol>
                                         <span className="ml-auto mr-8 w-fit flex flex-row gap-2">
                                             <button onClick={(event)=>{handleDelete(e.id);event.stopPropagation()}}><MdDeleteForever size="24px"/></button>
