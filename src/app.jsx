@@ -46,6 +46,8 @@ export function App() {
           <Route path="/schedule" element={<ProtectedRoute component={<Jadwal />} />} />
           <Route path="/memberdata" element={<ProtectedRoute component={<Anggota />} />} />
           <Route path="/documents" element={<ProtectedRoute component={<Document />} />} />
+          <Route path="/meetingschedule" element={<ProtectedRoute component={<Pertemuan />} />} />
+
           <Route path="*" element={<h1 class="w-full text-center text-3xl my-auto">404</h1>} />
         </Route>
       </Routes>
