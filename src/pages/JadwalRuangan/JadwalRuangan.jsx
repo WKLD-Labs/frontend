@@ -68,7 +68,6 @@ function PopUpAlert({setCaller}) {
 function NewActivityDialog({showDialog, setShowDialog, editData, onSubmit, markedDates}) {
     const [formData, setFormData] = useState({name: "", start_date: "", end_date: ""});
     const [calendarDate, setCalendarDate] = useState(new Date());
-    console.log(formData);
     if (editData) {
         markedDates = markedDates.filter((e) => e.start.getTime() != editData.start.getTime() && e.end.getTime() != editData.end.getTime());
     }
@@ -140,7 +139,6 @@ export default function JadwalRuangan() {
     const [selectedData, setSelectedData] = useState(null);
     const aPrompt = useRef(null);
     const aAlert = useRef(null);
-    console.log(scheduleData)
     async function handleSubmit(data) {
         const headers = {
             'Authorization': 'Bearer ' + bearertoken,
@@ -182,7 +180,6 @@ export default function JadwalRuangan() {
             response = await fetch(apiurl, {headers});
         }
         let data = await response.json();
-        console.log("got:", data);
         data = data.map((e) => {
             return {
                 id: e.id,
@@ -191,7 +188,6 @@ export default function JadwalRuangan() {
                 end: new Date(e.end_date)
             }
         })
-        console.log("loaded:", data);
         return data;
     }
     async function updateScheduleData() {
@@ -211,7 +207,6 @@ export default function JadwalRuangan() {
         };
         return date.toLocaleDateString('id-ID', options);
     }
-    // console.log(date)
     return (
       <div className="p-16 flex flex-col gap-4 flex-1">
         <h1 className="text-3xl font-semibold max-sm:text-center">Schedule</h1>
