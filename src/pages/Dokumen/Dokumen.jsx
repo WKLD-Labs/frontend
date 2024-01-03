@@ -2,9 +2,24 @@ import { BiFilterAlt } from 'react-icons/bi';
 import { Table, TableHeader, TableBody, TableRow, TableCol } from '../../components/Table';
 import { MdPersonOutline, MdMenuBook, MdOutlineDelete, MdMoreVert } from "react-icons/md";
 import { PopUpDialog, PopUpHeader, PopUpContents, PopUpActions } from "../../components/PopUpDialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-function NewMeeting({showDialog, setShowDialog}) {
+function NewDocument({showDialog, setShowDialog, onSubmit}) {
+    const [doc, setDoc] = useState({title: '', writer: '', description: ''});
+    
+    function handleTitle(e) {
+        setDoc({...doc, title: e.target.value});
+    }
+    function handleWriter(e) {
+        setDoc({...doc, writer: e.target.value});
+    }
+    function handleDesc(e) {
+        setDoc({...doc, description: e.target.value});
+    }
+    function handleSave() {
+        onSubmit(doc);
+    }
+
     return(
         <div className=''>
             <PopUpDialog open={showDialog} onChange={setShowDialog}>
@@ -17,7 +32,7 @@ function NewMeeting({showDialog, setShowDialog}) {
                                     <td style="width:20%"><h1 className='inline-block'>Title</h1></td>
                                     <td>
                                         <div className='flex flex-row items-center'>
-                                            <input type="text" placeholder='Enter document name...' className='aseinput pl-2 block w-full' />
+                                            <input type="text" placeholder='Enter document name...' className='aseinput pl-2 block w-full' name='title' value={doc.title} onChange={handleTitle}/>
                                         </div>
                                     </td>
                                 </tr>
@@ -25,7 +40,7 @@ function NewMeeting({showDialog, setShowDialog}) {
                                     <td style="width:20%"><h1 className='inline-block'>Author</h1></td>
                                     <td>
                                         <div className='flex flex-row items-center'>
-                                            <input type="text" placeholder='Enter author name...' className='aseinput pl-2 block w-full' />
+                                            <input type="text" placeholder='Enter author name...' name='writer' className='aseinput pl-2 block w-full' value={doc.writer} onChange={handleWriter} />
                                         </div>
                                     </td>
                                 </tr>
@@ -35,7 +50,7 @@ function NewMeeting({showDialog, setShowDialog}) {
                                     </td>
                                     <td>
                                         <div>
-                                            <textarea name="details" id="desc" rows="4" className='border border-asegrey w-full pl-2' placeholder='Add details...'></textarea>
+                                            <textarea name='description' id="desc" rows="4" className='border border-asegrey w-full pl-2' placeholder='Add details...' value={doc.description} onChange={handleDesc}></textarea>
                                         </div>
                                     </td>
                                 </tr>
@@ -44,7 +59,7 @@ function NewMeeting({showDialog, setShowDialog}) {
                     </div>
                 </PopUpContents>
                 <PopUpActions>
-                    <button id='add' className='ASE-button gap-2' onClick={()=>{setShowDialog(false);alert("Pura Puranya di save")}}>Save</button>
+                    <button id='add' className='ASE-button gap-2' onClick={()=>{setShowDialog(false);handleSave();}}>Save</button>
                     <button id='cancel' className='ASE-button bg-white text-black border-black border hover:bg-gray-300' onClick={()=>setShowDialog(false)}>Cancel</button>
                 </PopUpActions>
             </PopUpDialog>
@@ -52,7 +67,14 @@ function NewMeeting({showDialog, setShowDialog}) {
     )
 }
 
-function BorrowDoc({showDialogBor, setShowDialogBor}) {
+function BorrowDoc({showDialogBor, setShowDialogBor, onSubmit}) {
+    const [doc, setDoc] = useState({title: Date});
+    function handleSave() {
+        onSubmit(doc);
+    }
+    function handleReturn(e) {
+        setDoc({...doc, writer: e.target.value});
+    }
     return(
         <div className=''>
             <PopUpDialog open={showDialogBor} onChange={setShowDialogBor}>
@@ -78,15 +100,13 @@ function BorrowDoc({showDialogBor, setShowDialogBor}) {
                             </div>
                             <div className='flex items-center justify-center flex-row gap-5'>
                                     <h1 className='inline-block'>Return Date</h1>
-                                    <input type="date" name="tgl-event" id="tgl-event" className='block w-2/3 aseinput pl-2' />
+                                    <input type="date" name="return" id="return" className='block w-2/3 aseinput pl-2' value={doc.return} onChange={handleReturn} />
                             </div>
-                            
-                            
                         </form>
                     </div>
                 </PopUpContents>
                 <PopUpActions>
-                    <button id='add' className='ASE-button gap-2' onClick={()=>{setShowDialogBor(false);alert("Pura Puranya di save")}}>Save</button>
+                    <button id='add' className='ASE-button gap-2' onClick={()=>{setShowDialogBor(false);handleSave()}}>Save</button>
                     <button id='cancel' className='ASE-button bg-white text-black border-black border hover:bg-gray-300' onClick={()=>setShowDialogBor(false)}>Cancel</button>
                 </PopUpActions>
             </PopUpDialog>
@@ -95,8 +115,70 @@ function BorrowDoc({showDialogBor, setShowDialogBor}) {
 }
 
 export default function Document () {
+    const bearertoken = sessionStorage.getItem('token');
+    const apiurl = "http://localhost:5500/api/document";
     const [showDialog, setOpen] = useState(false);
     const [showDialogBor, setOpenBor] = useState(false);
+    //===================================Backend===================================
+    const [docData, setDocData] = useState([]);
+
+    //Get Document
+    async function getDocument(id) {
+        let response;
+        const headers = {   
+            'Authorization': 'Bearer ' + bearertoken
+        }
+        if (id) {
+            response = await fetch(apiurl + "/", {headers});
+        } else {
+            response = await fetch(apiurl, {headers});
+        }
+        let data = await response.json();
+        console.log(data);
+        return data.data;
+    }
+
+    //Read Document
+    async function readDocData() {
+        const data = await getDocument();
+        setDocData(data);
+    }
+
+    //Delete Document
+    async function deleteDoc(id) {
+        const headers = {
+            'Authorization': 'Bearer ' + bearertoken
+        }
+        await fetch(apiurl + "/" + id, {method: 'DELETE', headers});
+        readDocData();
+    }
+
+    //POST
+    async function submit(data) {
+        const headers = {
+            'Authorization': 'Bearer ' + bearertoken,
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+        let response;
+        if (data.id) {  
+            response = await fetch(apiurl + "/" + data.id, {method: 'PUT', headers, body: new URLSearchParams(data)});
+        } else {
+            response = await fetch(apiurl, {method: 'POST', headers, body: new URLSearchParams(data)});
+        }
+        if (response.status >= 400) {
+            const res = await response.json();
+            alert("Error", res.error);
+            return;
+        }
+        readDocData();
+        return response;
+    }
+
+    useEffect(() => {
+        readDocData();
+    }, [])
+
+    //===================================Frontend===================================
     return(
         <div className="w-full relative p-10 mb-36">
             {/*Div for Search and filter*/}
@@ -131,20 +213,41 @@ export default function Document () {
                             </TableHeader>
 
                             <TableBody>
-                                
+                                {docData.map((data) => (
                                 <TableRow>
-                                    <TableCol><div className='w-96 break-words'>Sustainable Minds</div> <p className='text-gray-500 text-sm leading-tight'> Eli Blevis</p> </TableCol>
+                                    <TableCol>
+                                        <div className='w-96 break-words'>{data.title}</div> 
+                                        <p className='text-gray-500 text-sm leading-tight'> {data.writer}</p> </TableCol>
                                     <TableCol> 
                                     <div className='w-full'>
-                                        <div className="bg-gray-300 text-center p-1 w-36 m-auto"><p>Borrowed</p></div>
+                                        {data.status ? (
+                                            <div className="bg-green-300 text-center p-1 w-36 m-auto">
+                                            <p>Available</p>
+                                            </div>
+                                        ) : (
+                                            <div className="bg-gray-300 text-center p-1 w-36 m-auto">
+                                            <p>Borrowed</p>
+                                            </div>
+                                        )}
                                     </div>
                                     </TableCol>
-                                    <TableCol>Rusdi</TableCol>
+                                    <TableCol>
+                                            {data.borrower ? (
+                                                data.borrower
+                                        ) : (
+                                            <p></p>
+                                        )}
+                                    </TableCol>
                                     
                                     <TableCol>
                                         <div className='flex flex-row items-center justify-center gap-3'>
-                                            <button className="ASE-button bg-gray-400 hover:bg-gray-400 cursor-not-allowed">Borrow</button>
-                                            <button onClick={()=>alert("DELETE ")}>
+                                            {data.status ? (
+                                                <button className="ASE-button" onClick={()=>setOpenBor(true)}>Borrow</button>
+                                            ) : (
+                                                <button className="ASE-button bg-gray-400 hover:bg-gray-400 cursor-not-allowed">Borrow</button>
+                                            )}
+                                            
+                                            <button onClick={()=>deleteDoc(data.id)}>
                                                 <MdOutlineDelete size={24} />
                                             </button>
                                             <button onClick={()=>alert("MORE ")}>
@@ -153,36 +256,15 @@ export default function Document () {
                                         </div>
                                     </TableCol>
                                 </TableRow>
+                                ))}
                                 
-                                <TableRow>
-                                    <TableCol> <div className='w-96 break-words'>Pemanfaatan Teknologi Game Untuk Pembelajaran</div> <p className='text-gray-500 text-sm leading-tight'> AZ Falani, PL Ekawati</p> </TableCol>
-                                    <TableCol> 
-                                    <div className='w-full'>
-                                        <div className="bg-green-300 text-center p-1 w-36 m-auto"><p>Available</p></div>
-                                    </div>
-                                    </TableCol>
-                                    <TableCol>-</TableCol>
-                                    
-                                    <TableCol>
-                                        <div className='flex flex-row items-center justify-center gap-3'>
-                                            <button className="ASE-button" onClick={()=>setOpenBor(true)}>Borrow</button>
-                                            <button onClick={()=>alert("DELETE ")}>
-                                                <MdOutlineDelete size={24} />
-                                            </button>
-                                            <button onClick={()=>alert("MORE ")}>
-                                                <MdMoreVert size={24} />
-                                            </button>
-                                        </div>
-                                    </TableCol>
-                                </TableRow>
                             </TableBody>
                         </Table>
                     </div>
                 <button onClick={()=>setOpen(true)} className='self-end rounded-xl w-48 h-8 bg-white text-black border border-asegrey my-5 hover:bg-gray-200'>New Document</button>
-                <NewMeeting showDialog={showDialog} setShowDialog={setOpen}/>
-                <BorrowDoc showDialogBor={showDialogBor} setShowDialogBor={setOpenBor}/>
+                <NewDocument showDialog={showDialog} setShowDialog={setOpen} onSubmit={submit}/>
+                <BorrowDoc showDialogBor={showDialogBor} setShowDialogBor={setOpenBor} onSubmit={submit}/>
             </div>
         </div>
     )
 }
-

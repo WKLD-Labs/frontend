@@ -35,13 +35,13 @@ export default function ScheduleCalendar({ currentDate, onDateUpdate, readOnly, 
         days.push(<div key={i} className="text-gray-400 flex justify-center aspect-square">{prevTotalDays - (firstDay - i)}</div>);
       } else {
         const events=[];
-        if(data[date.getMonth()+1]){
-          if(data[date.getMonth()+1][i-firstDay]){
-            data[date.getMonth()+1][i-firstDay].forEach(element => {
-              events.push(<span>{element.time} {element.nama}</span>)
-            });
-          }
-        }
+        // if(data[date.getMonth()+1]){
+        //   if(data[date.getMonth()+1][i-firstDay]){
+        //     data[date.getMonth()+1][i-firstDay].forEach(element => {
+        //       events.push(<span>{element.time} {element.nama}</span>)
+        //     });
+        //   }
+        // }
         days.push(
           <div
             key={i}
