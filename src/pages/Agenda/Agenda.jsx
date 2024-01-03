@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import ScheduleCalendar from "./components/ScheduleCalendar"
+import { PopUpDialog, PopUpActions, PopUpContents, PopUpHeader } from "../../components/PopUpDialog";
 
 
 function NewActivityDialog({ showDialog, setShowDialog, onSubmit }) {
