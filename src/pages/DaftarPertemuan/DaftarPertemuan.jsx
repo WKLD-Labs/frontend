@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { MdOutlineDelete, MdMoreVert, MdLink } from "react-icons/md";
+import { MdOutlineDelete, MdLink } from "react-icons/md";
 import { PopUpDialog, PopUpHeader, PopUpContents, PopUpActions } from "../../components/PopUpDialog";
 import { Table, TableHeader, TableBody, TableRow, TableCol } from '../../components/Table';
 
 function NewPertemuanDialog({showDialog, setShowDialog, onSubmit}) {
     const [formData, setFormData] = useState([{meetingname: "", speaker: "", datetime: null, meetinglink: "", description: ""}]);
- 
+
     function handleChange(e) {
         setFormData({...formData, [e.target.name]: e.target.value});
     }
