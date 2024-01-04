@@ -116,7 +116,7 @@ function BorrowDoc({showDialogBor, setShowDialogBor, onSubmit}) {
 
 export default function Document () {
     const bearertoken = sessionStorage.getItem('token');
-    const apiurl = "http://localhost:5500/api/document";
+    const apiurl = import.meta.env.VITE_API_SERVER + "/api/document";
     const [showDialog, setOpen] = useState(false);
     const [showDialogBor, setOpenBor] = useState(false);
     //===================================Backend===================================

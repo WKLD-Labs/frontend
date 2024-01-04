@@ -57,7 +57,7 @@ export default function Agenda() {
     const [date, setDate] = useState(new Date());
     const [showDialog, setShowDialog] = useState(false);
     const bearertoken = sessionStorage.getItem("token");
-    const apiurl = "http://localhost:5500/api/agenda"
+    const apiurl = import.meta.env.VITE_API_SERVER + "/api/agenda"
 
     async function handleCreate(data){
        const headers =  {

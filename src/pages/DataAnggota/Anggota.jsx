@@ -122,7 +122,7 @@ export default function Anggota() {
     const [showDialog, setShowDialog] = useState(false);
     const [memberData, setMemberData] = useState([]);
     function handleNewMember(newInventoryData) {
-        fetch('http://localhost:5500/api/member', {
+        fetch(import.meta.env.VITE_API_SERVER + '/api/member', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -148,7 +148,7 @@ export default function Anggota() {
     function handleDelete(id) {
         const confirmDelete = window.confirm("Are you sure you want to delete this member?");
         if (confirmDelete) {
-            fetch(`http://localhost:5500/api/member/${id}`, {
+            fetch(import.meta.env.VITE_API_SERVER + `/api/member/${id}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -171,7 +171,7 @@ export default function Anggota() {
     }
 
     function fetchMemberData() {
-        fetch('http://localhost:5500/api/member', {
+        fetch(import.meta.env.VITE_API_SERVER + '/api/member', {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -190,7 +190,7 @@ export default function Anggota() {
             });
     }
     useEffect(()=>{
-        fetch('http://localhost:5500/api/member', {
+        fetch(import.meta.env.VITE_API_SERVER + '/api/member', {
             headers: {
                 Authorization: `Bearer ${token}`
             }
