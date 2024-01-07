@@ -132,7 +132,7 @@ function NewActivityDialog({showDialog, setShowDialog, editData, onSubmit, marke
 
 export default function JadwalRuangan() {
     const bearertoken = sessionStorage.getItem("token");
-    const apiurl = "http://localhost:5500/api/roomschedule";
+    const apiurl = import.meta.env.VITE_API_SERVER + "/api/roomschedule";
     const [calendarDate, setCalendarDate] = useState(new Date());
     const [scheduleData, setScheduleData] = useState([]);
     const [showDialog, setShowDialog] = useState(false);

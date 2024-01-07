@@ -86,7 +86,7 @@ export default function Inventory(){
     });
 
     function handleNewInventory(newInventoryData) {
-        fetch('http://localhost:5500/api/inventory', {
+        fetch(import.meta.env.VITE_API_SERVER + '/api/inventory', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -112,7 +112,7 @@ export default function Inventory(){
     function handleDelete(id) {
         const confirmDelete = window.confirm("Are you sure you want to delete this inventory?");
         if (confirmDelete) {
-            fetch(`http://localhost:5500/api/inventory/${id}`, {
+            fetch(import.meta.env.VITE_API_SERVER + `/api/inventory/${id}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -134,7 +134,7 @@ export default function Inventory(){
         }
     }
     function handleUpdate() {
-        fetch(`http://localhost:5500/api/inventory/${selectedData.id}`, {
+        fetch(import.meta.env.VITE_API_SERVER + `/api/inventory/${selectedData.id}`, {
             method: 'PUT', // Use PUT method for updates
             headers: {
                 'Content-Type': 'application/json',
@@ -157,7 +157,7 @@ export default function Inventory(){
             });
     }
     function fetchInventoryData() {
-        fetch('http://localhost:5500/api/inventory', {
+        fetch(import.meta.env.VITE_API_SERVER + '/api/inventory', {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -195,7 +195,7 @@ export default function Inventory(){
         return formattedDate;
     }
     useEffect(()=>{
-        fetch('http://localhost:5500/api/inventory', {
+        fetch(import.meta.env.VITE_API_SERVER + '/api/inventory', {
             headers: {
                 Authorization: `Bearer ${token}`
             }

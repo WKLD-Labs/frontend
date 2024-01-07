@@ -79,7 +79,7 @@ function NewActvityDialog({ showDialog, setShowDialog, onSubmit }) {
 
 export default function Pertemuan() {
     const bearertoken = sessionStorage.getItem("token");
-    const apiurl = "http://localhost:5500/api/jadwal";
+    const apiurl = import.meta.env.VITE_API_SERVER + "/api/jadwal";
     const [showDialog, setShowDialog] = useState(false);
     const [activityData, setActivityData] = useState([]);
     const [selectedData, setSelectData] = useState(null);

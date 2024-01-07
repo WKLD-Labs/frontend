@@ -89,7 +89,7 @@ function ViewPertemuanData({showDialog, setShowDialog, data}){
 
 export default function Pertemuan(){
     const bearertoken = sessionStorage.getItem("token");
-    const apiurl = "http://localhost:5500/api/pertemuan";
+    const apiurl = import.meta.env.VITE_API_SERVER + "/api/pertemuan";
     const [showDialog, setShowDialog] = useState(false);
     const [meetingData, setMeetingData] = useState([]);
     const [selectedData, setSelectData] = useState(null);
