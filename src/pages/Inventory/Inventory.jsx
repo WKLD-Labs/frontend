@@ -2,6 +2,8 @@ import { PopUpDialog, PopUpActions, PopUpContents, PopUpHeader } from "../../com
 import {MdDeleteForever, MdMoreVert} from "react-icons/md"
 import {useState, useEffect} from "react";
 import { Table, TableHeader, TableBody, TableRow, TableCol } from '../../components/Table';
+import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
+import { storage } from "../../context/firebase.jsx";
 import {data} from "autoprefixer";
 function NewInventoryDialog({showDialog, setShowDialog, onSubmit}){
     const [formData, setFormData] = useState({
@@ -9,6 +11,7 @@ function NewInventoryDialog({showDialog, setShowDialog, onSubmit}){
         unit: null,
         date: '',
         description: '',
+        image: '',
     });
     useEffect(() => {
         if (showDialog) {
@@ -17,6 +20,7 @@ function NewInventoryDialog({showDialog, setShowDialog, onSubmit}){
                 unit: 0,
                 date: '',
                 description: '',
+                image: '',
             });
         }
     }, [showDialog]);
@@ -35,6 +39,29 @@ function NewInventoryDialog({showDialog, setShowDialog, onSubmit}){
         setFormData({ ...formData, unit: e.target.value });
     }
 
+    async function handleImageChange(e) {
+        const file = e.target.files[0];
+        if (file){
+            const storageRef = ref(storage, `images/${file.name}`);
+            const uploadTask = uploadBytesResumable(storageRef, file);
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log('Upload is ' + progress + '% done');
+                },
+                (error) => {
+                    console.error('Error uploading image:', error);
+                },
+                () => {
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        console.log('File available at', downloadURL);
+                        setFormData({ ...formData, image: downloadURL });
+                    });
+                }
+            );
+        }
+    }
+
     return (
         <PopUpDialog open={showDialog} onChange={setShowDialog}>
             <PopUpHeader text="New Item"></PopUpHeader>
@@ -45,19 +72,29 @@ function NewInventoryDialog({showDialog, setShowDialog, onSubmit}){
                             <tbody>
                             <tr>
                                 <td className="w-32">Item Name</td>
-                                <td><input className="aseinput w-full" type="text" value={formData.name} onChange={handleNameChange} /></td>
+                                <td><input className="aseinput w-full" type="text" value={formData.name}
+                                           onChange={handleNameChange}/></td>
                             </tr>
                             <tr>
                                 <td className="w-32">Unit</td>
-                                <td><input className="aseinput w-full" type="number" value={formData.unit} onChange={handleUnitChange} /></td>
+                                <td><input className="aseinput w-full" type="number" value={formData.unit}
+                                           onChange={handleUnitChange}/></td>
                             </tr>
                             <tr>
                                 <td className="w-32">Date</td>
-                                <td><input className="aseinput w-full" type="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} /></td>
+                                <td><input className="aseinput w-full" type="date" value={formData.date}
+                                           onChange={(e) => setFormData({...formData, date: e.target.value})}/></td>
                             </tr>
                             <tr>
                                 <td className="w-32">Description</td>
-                                <td><input className="aseinput w-full" type="textarea" value={formData.description} onChange={handleDescChange} /></td>
+                                <td><input className="aseinput w-full" type="textarea" value={formData.description}
+                                           onChange={handleDescChange}/></td>
+                            </tr>
+                            <tr>
+                                <td>Gambar</td>
+                                <td>
+                                    <input type="file" className="aseinput w-48" onChange={handleImageChange}/>
+                                </td>
                             </tr>
                             </tbody>
                         </table>
@@ -83,6 +120,7 @@ export default function Inventory(){
         unit: null,
         date: '',
         description: '',
+        image: '',
     });
 
     function handleNewInventory(newInventoryData) {
@@ -258,6 +296,7 @@ export default function Inventory(){
                     </Table>
                 </div>
                 <div className="flex flex-col justify-center items-center bg-asegrey bg-opacity-10 p-4 gap-2">
+                    <img src={selectedData?.image} alt="" className="w-56 object-cover rounded-xl"/>
                     <form onSubmit={handleFormSubmit}>
                         <table className="border-separate border-spacing-x-2 border-spacing-y-2">
                             <tr>
@@ -269,19 +308,22 @@ export default function Inventory(){
                             <tr>
                                 <td>Nama</td>
                                 <td>
-                                    <input type="text" className="aseinput w-48" value={formData?.name} onChange={handleNameChange}/>
+                                    <input type="text" className="aseinput w-48" value={formData?.name}
+                                           onChange={handleNameChange}/>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Deskripsi</td>
                                 <td>
-                                    <textarea name="" id="" className="aseinput w-48" value={formData?.description} onChange={handleDescChange}></textarea>
+                                    <textarea name="" id="" className="aseinput w-48" value={formData?.description}
+                                              onChange={handleDescChange}></textarea>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Unit</td>
                                 <td>
-                                    <input type="number" className="aseinput w-48" value={formData?.unit} onChange={handleUnitChange}/>
+                                    <input type="number" className="aseinput w-48" value={formData?.unit}
+                                           onChange={handleUnitChange}/>
                                 </td>
                             </tr>
                         </table>
@@ -289,7 +331,7 @@ export default function Inventory(){
                     </form>
                 </div>
             </div>
-            <button onClick={()=>setShowDialog(true)} className="self-end rounded-xl w-48 h-8 bg-white text-black border border-asegrey">New Item</button>
+            <button onClick={() => setShowDialog(true)} className="self-end rounded-xl w-48 h-8 bg-white text-black border border-asegrey">New Item</button>
             <NewInventoryDialog showDialog={showDialog} setShowDialog={setShowDialog} onSubmit={handleNewInventory} />
         </div>
     )
