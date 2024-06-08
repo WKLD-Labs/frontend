@@ -115,7 +115,7 @@ function NewActivityDialog({showDialog, setShowDialog, editData, onSubmit, marke
                                 </tr>
                                 <tr>
                                     <td className="w-32">Description</td>
-                                    <td><textarea className="aseinput" name="description" value={formData.description} onChange={handleChange}/></td>
+                                    <td><textarea className="aseinput w-full h-32" name="description" value={formData.description} onChange={handleChange}/></td>
                                 </tr>
                             </tbody>
                         </table>
