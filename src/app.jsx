@@ -38,6 +38,7 @@ export function App() {
       <AuthProvider>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/logout" element={<Navigate to="/login" />} />
         <Route path="/" element={<Mainlayout/>}>
           <Route index element={<Homepage />} />
           <Route path="/agenda" element={<ProtectedRoute component={<Agenda />} />} />

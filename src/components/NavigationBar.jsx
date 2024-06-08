@@ -39,7 +39,7 @@ function Sidebar({open, onChange}) {
                                 <NavLink className="navlink" to="/memberdata">Data Anggota</NavLink>
                                 <NavLink className="navlink" to="/inventory">Inventaris</NavLink>
                                 <NavLink className="navlink" to="/meetingschedule">Daftar Pertemuan</NavLink>
-                                <NavLink className="navlink" to="/" onClick={handleLogOut}>Logout</NavLink>
+                                <NavLink className="navlink" to="/logout" onClick={handleLogOut}>Logout</NavLink>
                             </>
                         ) : (
                             <>
