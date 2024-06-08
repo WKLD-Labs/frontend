@@ -66,7 +66,7 @@ function PopUpAlert({setCaller}) {
 }
 
 function NewActivityDialog({showDialog, setShowDialog, editData, onSubmit, markedDates}) {
-    const [formData, setFormData] = useState({name: "", start_date: "", end_date: ""});
+    const [formData, setFormData] = useState({name: "", start_date: "", description: "", end_date: ""});
     const [calendarDate, setCalendarDate] = useState(new Date());
     if (editData) {
         markedDates = markedDates.filter((e) => e.start.getTime() != editData.start.getTime() && e.end.getTime() != editData.end.getTime());
@@ -80,10 +80,10 @@ function NewActivityDialog({showDialog, setShowDialog, editData, onSubmit, marke
     ];
     useEffect(() => {
         if (editData) {
-            setFormData({id: editData.id, name: editData.name, start_date: editData.start.toISOString().slice(0, -1), end_date: editData.end.toISOString().slice(0, -1)});
+            setFormData({id: editData.id, name: editData.name, description: editData.description, start_date: editData.start.toISOString().slice(0, -1), end_date: editData.end.toISOString().slice(0, -1)});
             
         } else {
-            setFormData({id: null, name: "", start_date: "", end_date: ""});
+            setFormData({id: null, name: "", description: "", start_date: "", end_date: ""});
         }
     }, [editData])
     function handleChange(e) {
@@ -91,7 +91,7 @@ function NewActivityDialog({showDialog, setShowDialog, editData, onSubmit, marke
     }
     function closeDialog(e) {
         setShowDialog(e);
-        setFormData({id: null, name: "", start_date: "", end_date: ""})
+        setFormData({id: null, name: "", description: "" , start_date: "", end_date: ""})
     }
     return (
         <PopUpDialog open={showDialog} onChange={closeDialog}>
@@ -112,6 +112,10 @@ function NewActivityDialog({showDialog, setShowDialog, editData, onSubmit, marke
                                 <tr>    
                                     <td className="w-32">End Time</td>
                                     <td><input className="aseinput" type="datetime-local" name="end_date" value={formData.end_date}  onChange={handleChange}/></td>
+                                </tr>
+                                <tr>
+                                    <td className="w-32">Description</td>
+                                    <td><textarea className="aseinput" name="description" value={formData.description} onChange={handleChange}/></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -184,6 +188,7 @@ export default function JadwalRuangan() {
             return {
                 id: e.id,
                 name: e.name,
+                description: e.description,
                 start: new Date(e.start_date),
                 end: new Date(e.end_date)
             }
@@ -221,16 +226,24 @@ export default function JadwalRuangan() {
                 </TableHeader>
                 <TableBody>
                     {scheduleData.map((data) => (
-                        <TableRow>
+                        <TableRow onClick={()=>{aAlert.current(data.name, (
+                            <div>
+                                <ul>
+                                    <li>Start: {formatDate(data.start)}</li>
+                                    <li>End: {formatDate(data.end)}</li>
+                                    <li>Description: {data.description}</li>
+                                </ul>
+                            </div>
+                        ))}}>
                             <TableCol>{data.name}</TableCol>
                             <TableCol>{formatDate(data.start)}</TableCol>
                             <TableCol>{formatDate(data.end)}</TableCol>
                             <TableCol>
                                 <span className="ml-auto w-fit flex flex-row gap-2">
-                                    <button onClick={()=>handleDelete(data.id)}>
+                                    <button onClick={(event)=>{event.stopPropagation(), handleDelete(data.id)}}>
                                         <MdOutlineDelete size={24} />
                                     </button>
-                                    <button onClick={()=>{setSelectedData({...data}); setShowDialog(true)}}>
+                                    <button onClick={(event)=>{event.stopPropagation(); setSelectedData({...data}); setShowDialog(true)}}>
                                         <MdEdit size={24} />
                                     </button>   
                                     
