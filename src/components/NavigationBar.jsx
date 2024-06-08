@@ -75,7 +75,7 @@ export default function NavigationBar() {
             
             
             <Link to="/" class="flex flex-row gap-4 items-center">
-                <span>{sessionStorage.getItem('name')?name:"User"}</span>
+                <span>{sessionStorage.getItem('name')?name:"Not Logged In"}</span>
                 <img class="w-10 rounded-full aspect-square" src={dummyprofile}/>
             </Link>
         </div>
