@@ -125,7 +125,32 @@ function BorrowDoc({ showDialogBor, setShowDialogBor, onSubmit, selectedDoc }) {
     )
 }
 
-function MoreDetailsPopup({ showDialogMore, setShowDialogMore, selectedDoc }) {
+function MoreDetailsPopup({ showDialogMore, setShowDialogMore, selectedDoc, onSubmit }) {
+    const [editMode, setEditMode] = useState(false);
+    const [editedDoc, setEditedDoc] = useState({ ...selectedDoc });
+
+    const handleEdit = () => {
+        setEditMode(true);
+    };
+
+    const handleSave = () => {
+        const updatedDoc = {
+            ...editedDoc,
+            status: !editedDoc.borrower || editedDoc.borrower.trim() === '',
+        };
+        onSubmit(updatedDoc);
+        setEditMode(false);
+    };
+
+    const handleCancel = () => {
+        setEditedDoc({ ...selectedDoc });
+        setEditMode(false);
+    };
+
+    const handleChange = (e) => {
+        setEditedDoc({ ...editedDoc, [e.target.name]: e.target.value });
+    };
+
     return (
         <div className=''>
             <PopUpDialog open={showDialogMore} onChange={setShowDialogMore}>
@@ -138,7 +163,17 @@ function MoreDetailsPopup({ showDialogMore, setShowDialogMore, selectedDoc }) {
                                     <MdMenuBook size={24} />
                                 </div>
                                 <div className='flex flex-row items-center w-2/3'>
-                                    <h1>{selectedDoc?.title}</h1>
+                                    {editMode ? (
+                                        <input
+                                            type="text"
+                                            name="title"
+                                            value={editedDoc.title}
+                                            onChange={handleChange}
+                                            className='aseinput pl-2 block w-full'
+                                        />
+                                    ) : (
+                                        <h1>{selectedDoc?.title}</h1>
+                                    )}
                                 </div>
                             </div>
                             <div className='flex items-center justify-center flex-row gap-5'>
@@ -146,34 +181,94 @@ function MoreDetailsPopup({ showDialogMore, setShowDialogMore, selectedDoc }) {
                                     <MdPersonOutline size={24} />
                                 </div>
                                 <div className='flex flex-row items-center w-2/3'>
-                                    <h1>{selectedDoc?.writer}</h1>
+                                    {editMode ? (
+                                        <input
+                                            type="text"
+                                            name="writer"
+                                            value={editedDoc.writer}
+                                            onChange={handleChange}
+                                            className='aseinput pl-2 block w-full'
+                                        />
+                                    ) : (
+                                        <h1>{selectedDoc?.writer}</h1>
+                                    )}
                                 </div>
                             </div>
                             <div className='flex items-center justify-center flex-row gap-5'>
                                 <h1 className='inline-block'>Description</h1>
-                                <div className='block w-2/3 aseinput pl-2'>{selectedDoc?.description}</div>
+                                {editMode ? (
+                                    <textarea
+                                        name='description'
+                                        rows="4"
+                                        className='border border-asegrey w-2/3 pl-2'
+                                        value={editedDoc.description}
+                                        onChange={handleChange}
+                                    ></textarea>
+                                ) : (
+                                    <div className='block w-2/3 aseinput pl-2'>{selectedDoc?.description}</div>
+                                )}
                             </div>
                             <div className='flex items-center justify-center flex-row gap-5'>
                                 <h1 className='inline-block'>Status</h1>
-                                <div className='block w-2/3 aseinput pl-2'>{selectedDoc?.status ? 'Available' : 'Borrowed'}</div>
+                                <div className='block w-2/3 aseinput pl-2'>{!editedDoc.borrower || editedDoc.borrower.trim() === '' ? 'Available' : 'Borrowed'}</div>
                             </div>
-                            {selectedDoc?.borrower && (
-                                <div className='flex items-center justify-center flex-row gap-5'>
-                                    <h1 className='inline-block'>Borrower</h1>
-                                    <div className='block w-2/3 aseinput pl-2'>{selectedDoc?.borrower}</div>
-                                </div>
-                            )}
-                            {selectedDoc?.return && (
-                                <div className='flex items-center justify-center flex-row gap-5'>
-                                    <h1 className='inline-block'>Return Date</h1>
-                                    <div className='block w-2/3 aseinput pl-2'>{selectedDoc?.return}</div>
-                                </div>
-                            )}
+                            <div className='flex items-center justify-center flex-row gap-5'>
+                                <h1 className='inline-block'>Borrower</h1>
+                                {editMode ? (
+                                    <input
+                                        type="text"
+                                        name="borrower"
+                                        value={editedDoc.borrower || ''}
+                                        onChange={handleChange}
+                                        className='aseinput pl-2 block w-2/3'
+                                    />
+                                ) : (
+                                    <div className='block w-2/3 aseinput pl-2'>{selectedDoc?.borrower || 'N/A'}</div>
+                                )}
+                            </div>
+                            <div className='flex items-center justify-center flex-row gap-5'>
+                                <h1 className='inline-block'>Return Date</h1>
+                                {editMode ? (
+                                    <input
+                                        type="date"
+                                        name="return"
+                                        value={editedDoc.return || ''}
+                                        onChange={handleChange}
+                                        className='aseinput pl-2 block w-2/3'
+                                    />
+                                ) : (
+                                    <div className='block w-2/3 aseinput pl-2'>{selectedDoc?.return || 'N/A'}</div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </PopUpContents>
                 <PopUpActions>
-                    <button id='close' className='ASE-button bg-white text-black border-black border hover:bg-gray-300' onClick={() => setShowDialogMore(false)}>Close</button>
+                    {editMode ? (
+                        <>
+                            <button className='ASE-button' onClick={handleSave}>
+                                Save
+                            </button>
+                            <button
+                                className='ASE-button bg-white text-black border-black border hover:bg-gray-300'
+                                onClick={handleCancel}
+                            >
+                                Cancel
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <button className='ASE-button' onClick={handleEdit}>
+                                Edit
+                            </button>
+                            <button
+                                className='ASE-button bg-white text-black border-black border hover:bg-gray-300'
+                                onClick={() => setShowDialogMore(false)}
+                            >
+                                Close
+                            </button>
+                        </>
+                    )}
                 </PopUpActions>
             </PopUpDialog>
         </div>
@@ -223,8 +318,8 @@ export default function Document() {
         readDocData();
     }
 
-    //POST and PUT
-    async function submit(data) {
+     //POST and PUT
+     async function submit(data) {
         const headers = {
             'Authorization': 'Bearer ' + bearertoken,
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -331,7 +426,7 @@ export default function Document() {
                 <button onClick={() => setOpen(true)} className='self-end rounded-xl w-48 h-8 bg-white text-black border border-asegrey my-5 hover:bg-gray-200'>New Document</button>
                 <NewDocument showDialog={showDialog} setShowDialog={setOpen} onSubmit={submit} />
                 <BorrowDoc showDialogBor={showDialogBor} setShowDialogBor={setOpenBor} onSubmit={submit} selectedDoc={selectedDoc} />
-                <MoreDetailsPopup showDialogMore={showDialogMore} setShowDialogMore={setOpenMore} selectedDoc={selectedDoc} />
+                <MoreDetailsPopup showDialogMore={showDialogMore} setShowDialogMore={setOpenMore} selectedDoc={selectedDoc} onSubmit={submit} />
             </div>
         </div>
     )
