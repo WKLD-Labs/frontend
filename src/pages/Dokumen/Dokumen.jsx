@@ -283,6 +283,8 @@ export default function Document() {
     const [showDialogBor, setOpenBor] = useState(false);
     const [showDialogMore, setOpenMore] = useState(false);
     const [selectedDoc, setSelectedDoc] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filteredDocData, setFilteredDocData] = useState([]);
 
     //===================================Backend===================================
     const [docData, setDocData] = useState([]);
@@ -307,6 +309,7 @@ export default function Document() {
     async function readDocData() {
         const data = await getDocument();
         setDocData(data);
+        setFilteredDocData(data);
     }
 
     //Delete Document
@@ -343,6 +346,17 @@ export default function Document() {
         readDocData();
     }, [])
 
+    // Search function
+    const handleSearch = (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        setSearchTerm(searchTerm);
+        const filtered = docData.filter(doc =>
+            doc.title.toLowerCase().includes(searchTerm) ||
+            doc.writer.toLowerCase().includes(searchTerm)
+        );
+        setFilteredDocData(filtered);
+    }
+
     //===================================Frontend===================================
     return (
         <div className="w-full relative p-10 mb-36">
@@ -352,7 +366,7 @@ export default function Document() {
                     <h1 className="text-4xl font-semibold">Document</h1>
                 </div>
                 <div className='flex flex-row gap-2'>
-                    <input type="text" placeholder="Search..." className="border border-asegreydark w-full rounded-xl p-1 pl-2"/>
+                    <input type="text" placeholder="Search..." value={searchTerm}onChange={handleSearch} className="border  border-asegreydark w-full rounded-xl p-1 pl-2"/>
                     <details className='relative'>
                         <summary className="border border-asegreydark rounded-xl p-1 list-none mb-1 hover:bg-gray-300"><BiFilterAlt size={20}/></summary>
                         <ul className='fixed right-0 p-2 shadow z-[1] bg-aseorange rounded-xl w-32 text-center text-white mr-6' >
@@ -376,7 +390,7 @@ export default function Document() {
                         </TableHeader>
 
                         <TableBody>
-                            {docData.map((data) => (
+                        {filteredDocData.map((data) => (
                                 <TableRow key={data.id}>
                                     <TableCol>
                                         <div className='w-96 break-words'>{data.title}</div>
