@@ -34,7 +34,7 @@ function Sidebar({open, onChange}) {
                                 <NavLink className="navlink" to="/">Home</NavLink>
                                 <NavLink className="navlink" to="/documents">Dokumen</NavLink>
                                 <NavLink className="navlink" to="/schedule">Jadwal</NavLink>
-                                <NavLink className="navlink" to="/agenda">Agenda</NavLink>
+                                {/* <NavLink className="navlink" to="/agenda">Agenda</NavLink> */}
                                 <NavLink className="navlink" to="/roomschedule">Jadwal Ruangan</NavLink>
                                 <NavLink className="navlink" to="/memberdata">Data Anggota</NavLink>
                                 <NavLink className="navlink" to="/inventory">Inventaris</NavLink>
